@@ -20,10 +20,10 @@ const firebaseConfig = {
 
 };
 
-// Detektor Error Otomatis (Mencegah web hang)
-if (firebaseConfig.apiKey === "AIzaSyCG2xohq42KWpzU6WrEEIlr9zGyjF7K5Bg") {
-  alert("⚠️ PERHATIAN: Anda belum memasukkan Konfigurasi Firebase Anda! Buka file app.js baris ke-11 sampai 16 dan ganti kodenya.");
-}
+// // Detektor Error Otomatis (Mencegah web hang)
+// if (firebaseConfig.apiKey === "AIzaSyCG2xohq42KWpzU6WrEEIlr9zGyjF7K5Bg") {
+//   alert("⚠️ PERHATIAN: Anda belum memasukkan Konfigurasi Firebase Anda! Buka file app.js baris ke-11 sampai 16 dan ganti kodenya.");
+// }
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
