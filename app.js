@@ -3,27 +3,18 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
-  getFirestore, collection, getDocs, doc, setDoc, updateDoc 
+  getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// PENTING: GANTI TULISAN DI BAWAH INI DENGAN MILIK ANDA SENDIRI
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 const firebaseConfig = {
-  apiKey: "AIzaSyCG2xohq42KWpzU6WrEEIlr9zGyjF7K5Bg",
+  apiKey: "AIzaSyCG2xoHq42KWpzU6wrtEIlr9zGyjf7K5Dg",
   authDomain: "inventorysembako.firebaseapp.com",
   projectId: "inventorysembako",
   storageBucket: "inventorysembako.firebasestorage.app",
   messagingSenderId: "706241778773",
   appId: "1:706241778773:web:5237829e3aa38d3f09b0dc",
   measurementId: "G-3QG3080H7L"
-
 };
-
-// // Detektor Error Otomatis (Mencegah web hang)
-// if (firebaseConfig.apiKey === "AIzaSyCG2xohq42KWpzU6WrEEIlr9zGyjF7K5Bg") {
-//   alert("⚠️ PERHATIAN: Anda belum memasukkan Konfigurasi Firebase Anda! Buka file app.js baris ke-11 sampai 16 dan ganti kodenya.");
-// }
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -35,7 +26,7 @@ let currentUser = null;
 try {
   const storedUser = localStorage.getItem('inmo_current_user');
   if (!storedUser) {
-    window.location.replace('login.html'); // Tendang jika belum login
+    window.location.replace('login.html'); 
   } else {
     currentUser = JSON.parse(storedUser);
   }
@@ -116,28 +107,22 @@ async function fetchProductsFromCloud() {
     querySnapshot.forEach((doc) => {
       PRODUK.push({ db_id: doc.id, ...doc.data() });
     });
-    
-    // Urutkan berdasarkan ID agar rapi
     PRODUK.sort((a, b) => parseInt(a.id.replace('p', '')) - parseInt(b.id.replace('p', '')));
   } catch (error) {
-    console.error("Gagal mengambil data dari Firebase:", error);
     showNotification("Gagal terhubung ke Cloud Database.", "danger");
   }
 }
 
 async function initData() {
   try {
-    // Atur UI Profil awal
     if(currentUser && currentUser.name) {
       document.getElementById('user-name-display').textContent = currentUser.name;
     }
     updateAvatarUI();
     changeTheme(localStorage.getItem('inmo_theme') || 'default');
     
-    // Ambil Data dari Firebase
     await fetchProductsFromCloud();
     
-    // Jika database kosong, lakukan injeksi 50 produk (Hanya dilakukan 1 kali)
     if(PRODUK.length === 0) {
       showNotification("Sistem sedang menginisialisasi 50 Master Data. Mohon tunggu...", "warning");
       
@@ -169,7 +154,6 @@ async function initData() {
         { nama: "Malkist Crackers Roma", kat: "Snack", hrg: 7500 }, { nama: "Slai O'lai Nanas", kat: "Snack", hrg: 6000 }
       ];
 
-      // Memasukkan data ke Firebase secara bersamaan agar cepat
       const janjiSimpan = namaProdukList.map((item, i) => {
         let stokSim = 10 + (i%20);
         let minSim = 5; 
@@ -177,26 +161,20 @@ async function initData() {
         if(i===15 || i===37) { stokSim = 0; minSim = 10; } 
         
         const newProduct = { 
-          id: 'p'+(i+1), 
-          kode: 'PRD-' + String(i+1).padStart(3, '0'), 
-          nama: item.nama, 
-          kategori: item.kat, 
-          stok: stokSim, 
-          min: minSim, 
-          hjual: item.hrg 
+          id: 'p'+(i+1), kode: 'PRD-' + String(i+1).padStart(3, '0'), 
+          nama: item.nama, kategori: item.kat, stok: stokSim, min: minSim, hjual: item.hrg 
         };
         return setDoc(doc(db, "produk", newProduct.id), newProduct);
       });
 
-      await Promise.all(janjiSimpan); // Tunggu sampai 50 data masuk
-      await fetchProductsFromCloud(); // Refresh data
+      await Promise.all(janjiSimpan); 
+      await fetchProductsFromCloud(); 
       showNotification("Inisialisasi Master Data Selesai!", "success");
     }
 
     updateDatalist(); 
-    showSection('dashboard'); // Munculkan layar
+    showSection('dashboard'); 
   } catch (error) {
-    console.error("Gagal saat inisialisasi:", error);
     showNotification("Terjadi kesalahan sistem saat memuat data.", "danger");
   }
 }
@@ -331,10 +309,6 @@ function renderDashboard() {
             label: (context) => ` Stok Sistem: ${context.raw} Unit`
           }
         }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
       }
     }
   });
@@ -386,13 +360,19 @@ function renderInventory() {
   document.querySelector('#tbl-inventory tbody').innerHTML = filtered.map(p => {
     const s = getStatus(p);
     const batasMin = p.min !== undefined ? p.min : 5;
+    
     return `<tr>
       <td><code style="background:var(--bg3);padding:4px 6px;border-radius:6px;color:var(--text);font-family:var(--mono);">${p.kode}</code></td>
       <td><strong>${p.nama}</strong></td><td>${p.kategori}</td>
       <td><div style="font-family:var(--mono);font-weight:700;font-size:15px;">${p.stok} <span style="font-size:10px; color:var(--text2); font-weight:normal;">/ Min: ${batasMin}</span></div></td>
       <td style="font-family:var(--mono);">Rp ${Number(p.hjual).toLocaleString('id-ID')}</td>
       <td><span class="status ${s.cls}">${s.label}</span></td>
-      <td><button class="btn-inline" onclick="openModalProduk('${p.db_id}')">✏️ Edit</button></td>
+      <td>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-inline" onclick="openModalProduk('${p.db_id}')">✏️ Edit</button>
+          <button class="btn-inline" style="color:var(--danger); border-color:var(--danger); background:rgba(239,68,68,0.1);" onclick="hapusProduk('${p.db_id}')">🗑️ Hapus</button>
+        </div>
+      </td>
     </tr>`;
   }).join('') || '<tr><td colspan="7" style="text-align:center;padding:25px;color:var(--text2);">Data tidak ditemukan.</td></tr>';
 }
@@ -564,20 +544,67 @@ function doLogout() {
   window.location.replace('login.html');
 }
 
-// REALTIME TICKERS
-setInterval(() => { document.getElementById('topbar-time').textContent = new Date().toLocaleTimeString('id-ID', {hour12:false}) + ' WITA'; }, 1000);
+// ==========================================
+// 11. FITUR MENGHAPUS DATA DARI FIREBASE
+// ==========================================
+function hapusProduk(db_id) {
+  const m = document.createElement('div');
+  m.className = 'modal-overlay open';
+  m.innerHTML = `
+    <div class="modal" style="width:400px; text-align:center; padding:30px 20px;">
+      <div style="font-size:45px; margin-bottom:15px; animation: pulse 2s infinite;">⚠️</div>
+      <h3 style="margin-bottom:10px; color:var(--text);">Konfirmasi Penghapusan</h3>
+      <p style="color:var(--text2); margin-bottom:25px; font-size:14px; line-height:1.5;">
+        Apakah Anda yakin ingin menghapus aset ini secara permanen? Data akan ditarik dari layar web dan pangkalan data Cloud.
+      </p>
+      <div style="display:flex; justify-content:center; gap:12px;">
+        <button class="btn-inline" onclick="this.closest('.modal-overlay').remove()">Batal</button>
+        <button class="btn-primary" style="background:var(--danger); border-color:var(--danger); width:auto; padding:10px 20px;" id="btn-confirm-delete">Ya, Hapus Permanen</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(m);
+
+  document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-confirm-delete');
+    btn.textContent = "Menghapus...";
+    try {
+      await deleteDoc(doc(db, "produk", db_id));
+      m.remove(); 
+      await fetchProductsFromCloud(); 
+      updateDatalist();
+      renderInventory();
+      renderDashboard();
+      showNotification("Aset berhasil dihapus dari sistem dan layar.", "success");
+    } catch (error) {
+      m.remove();
+      showNotification("Gagal menghapus data dari server.", "danger");
+    }
+  });
+}
+
+// ==========================================
+// 12. REALTIME TICKERS (WAKTU & PING)
+// ==========================================
+setInterval(() => { 
+  const timeEl = document.getElementById('topbar-time');
+  if(timeEl) timeEl.textContent = new Date().toLocaleTimeString('id-ID', {hour12:false}) + ' WITA'; 
+}, 1000);
+
 setInterval(() => {
   const ping = Math.floor(Math.random() * 40) + 10; 
   const valEl = document.getElementById('ping-val');
   const boxEl = document.getElementById('network-status');
-  const labelEl = boxEl.querySelector('.ping-label');
-  if(valEl) valEl.textContent = ping + 'ms';
-  if(ping > 40) { boxEl.className = 'network-status unstable'; labelEl.textContent = 'KONEKSI LAMBAT'; } 
-  else { boxEl.className = 'network-status'; labelEl.textContent = 'KONEKSI STABIL'; }
+  if(boxEl && valEl) {
+    const labelEl = boxEl.querySelector('.ping-label');
+    valEl.textContent = ping + 'ms';
+    if(ping > 40) { boxEl.className = 'network-status unstable'; labelEl.textContent = 'KONEKSI LAMBAT'; } 
+    else { boxEl.className = 'network-status'; labelEl.textContent = 'KONEKSI STABIL'; }
+  }
 }, 2500);
 
 // ==========================================
-// 11. BINDING EVENT LISTENER KE HTML
+// 13. BINDING EVENT LISTENER KE HTML
 // ==========================================
 document.getElementById('nav-dashboard').addEventListener('click', () => showSection('dashboard'));
 document.getElementById('nav-inventory').addEventListener('click', () => showSection('inventory'));
@@ -604,6 +631,7 @@ document.getElementById('btn-upload-foto').addEventListener('click', () => docum
 document.getElementById('file-avatar').addEventListener('change', previewImage);
 
 window.openModalProduk = openModalProduk;
+window.hapusProduk = hapusProduk; 
 
 // JALANKAN PROGRAM SAAT PERTAMA DIBUKA
 window.addEventListener('DOMContentLoaded', initData);
