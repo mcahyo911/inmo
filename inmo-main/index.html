@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>inmo — Enterprise Inventory Dashboard</title>
+
+<!-- Font External -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/>
+
+<!-- Menghubungkan ke file CSS -->
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div class="notification-container" id="notif-container"></div>
+
+<!-- ================= MAIN APPLICATION ================= -->
+<!-- Class 'show' ditambahkan agar langsung tampil, keamanan akan diurus oleh JS nanti -->
+<div id="app" class="show">
+  <aside class="sidebar">
+    <div class="sidebar-brand"><span class="brand-icon">⬡</span><span class="brand-name">inmo</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" id="nav-dashboard">▦ Dashboard</a>
+      <a class="nav-item" id="nav-inventory">▤ Inventory</a>
+    </nav>
+    <div class="sidebar-footer">
+      Sistem Manajemen Logistik v8.0<br>Cloud Firestore Terhubung
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      
+      <!-- TOPBAR RIGHT: PING, TIME, THEME TOGGLE, PROFILE -->
+      <div class="topbar-right">
+        
+        <!-- WIFI/PING MODEL -->
+        <div class="network-status" id="network-status" title="Status Koneksi Server Lokal">
+          <div class="wifi-icon" id="wifi-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M15.384 6.115a.485.485 0 0 0-.047-.736A12.44 12.44 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.52.52 0 0 0 .668.05A11.45 11.45 0 0 1 8 4c2.507 0 4.827.802 6.716 2.164.205.148.49.13.668-.049z"/>
+              <path d="M13.229 8.271a.482.482 0 0 0-.063-.745A9.46 9.46 0 0 0 8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065A8.46 8.46 0 0 1 8 7a8.46 8.46 0 0 1 4.576 1.336c.206.132.48.108.653-.065zm-2.183 2.183c.226-.226.185-.605-.1-.75A6.5 6.5 0 0 0 8 9c-1.06 0-2.062.254-2.946.704-.285.145-.326.524-.1.75l.015.015c.16.16.407.19.611.09A5.5 5.5 0 0 1 8 10c.868 0 1.69.201 2.42.56.203.1.45.07.61-.091l.016-.015zM9.06 12.44c.196-.196.198-.52-.04-.66A2.002 2.002 0 0 0 8 11.5a2.002 2.002 0 0 0-1.02.28c-.238.14-.236.464-.04.66l.706.706a.5.5 0 0 0 .708 0l.707-.707z"/>
+            </svg>
+          </div>
+          <div class="ping-info">
+            <span class="ping-label">KONEKSI STABIL</span>
+            <span class="ping-val" id="ping-val">12ms</span>
+          </div>
+        </div>
+
+        <div class="topbar-time" id="topbar-time">00:00:00 WITA</div>
+        
+        <!-- LIGHT/DARK TOGGLE -->
+        <button class="btn-theme-toggle" id="btn-theme-toggle" title="Ganti Mode Terang/Gelap">
+          <svg id="icon-moon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>
+          <svg id="icon-sun" style="display:block;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+        </button>
+
+        <!-- PROFILE DROPDOWN AT TOP RIGHT -->
+        <div class="profile-box" id="btn-profile-box">
+          <div class="user-avatar" id="user-avatar">A</div>
+          <div class="profile-text">
+            <span class="user-name" id="user-name-display">Memuat...</span>
+            <span class="user-role">Super Admin</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="ms-2 text-muted" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+          </svg>
+          
+          <div class="prof-dropdown" id="prof-menu">
+            <button class="btn-prof" id="btn-open-profile">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right:8px;">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+              </svg>
+              Pengaturan Akun
+            </button>
+            <hr style="border-color:var(--border); margin:5px 0;">
+            <button class="btn-logout" id="btn-do-logout">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right:8px;">
+                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+              </svg>
+              Keluar Sistem
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- SECTION 1: DASHBOARD -->
+    <section id="section-dashboard" class="section active">
+      
+      <!-- EMERGENCY ALERT -->
+      <div class="emergency-alert" id="emergency-box">
+        <div style="display:flex; align-items:center; gap:15px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="var(--danger)" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+          </svg>
+          <div>
+            <strong style="color:var(--danger); font-size:16px;">🚨 KONDISI DARURAT: DEPLESI STOK TERDETEKSI</strong> <br>
+            <span id="emergency-text" style="color:var(--text); font-size:14px;"></span>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:auto; padding:8px 20px; background:var(--danger);" id="btn-tindak-lanjut">Tindak Lanjuti</button>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="stats-grid">
+        <div class="stat-card" id="card-filter-all" title="Tinjau Keseluruhan Inventory">
+          <div class="stat-label">Total Produk (Aktif)</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card warning" id="card-filter-low" title="Tinjau Aset dalam Status Kritis">
+          <div class="stat-label">Stok Menipis</div>
+          <div class="stat-value" id="stat-low">0</div>
+        </div>
+        <div class="stat-card danger" id="card-filter-empty" title="Tinjau Defisit Aset">
+          <div class="stat-label">Stok Habis</div>
+          <div class="stat-value" id="stat-empty">0</div>
+        </div>
+        <div class="stat-card success" id="card-valuation" title="Analisis Valuasi per Kategori">
+          <div class="stat-label">Nilai Inventory</div>
+          <div class="stat-value" id="stat-value">Rp 0</div>
+        </div>
+      </div>
+      
+      <!-- SCROLLABLE LINE CHART -->
+      <div class="chart-container-box">
+        <div class="chart-header">
+          <div>
+            <strong style="font-size:16px;">Tren Ketersediaan Fisik (Grafik Interaktif)</strong><br>
+            <span style="font-size:12px; color:var(--text2);">Sentuh garis untuk melihat detail stok.</span>
+          </div>
+          
+          <button class="btn-inline" style="color:var(--success); border-color:var(--success);" id="btn-export-excel" title="Unduh Database sebagai XLSX">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="margin-right:6px;">
+              <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+              <path d="M4.603 8.353l1.932 2.653-1.996 2.76h1.222l1.323-2.008c.114-.179.208-.344.282-.495h.016c.074.156.166.326.276.51l1.378 1.993h1.168l-2.028-2.768 1.905-2.645h-1.196l-1.298 1.94c-.114.175-.205.335-.273.48h-.016c-.068-.15-.164-.31-.289-.48l-1.306-1.94H4.603z"/>
+            </svg> Laporan Excel
+          </button>
+        </div>
+        <div class="chart-wrapper">
+          <div style="position:relative; height:320px; width:1500px;">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 2: INVENTORY -->
+    <section id="section-inventory" class="section">
+      <div class="toolbar">
+        <div style="display:flex; align-items:center; gap:15px;">
+          <input type="text" id="search-inv" placeholder="Identifikasi UID atau Nama Produk..." class="search-input"/>
+          <span id="filter-badge" style="display:none; font-size:12px; font-weight:700; background:var(--accent); padding:4px 10px; border-radius:20px; color:white;">Filter Aktif <span style="cursor:pointer; margin-left:8px; font-size:14px;" id="btn-clear-filter">✕</span></span>
+        </div>
+        <button class="btn-primary" style="padding:10px 18px; width:auto;" id="btn-add-product">+ Registrasi Produk Baru</button>
+      </div>
+      <div class="card no-pad">
+        <table class="table" id="tbl-inventory">
+          <thead><tr><th>Kode/UID</th><th>Nama Produk Grosir</th><th>Kategori</th><th>Stok Aktual</th><th>Harga Valuasi</th><th>Indikator</th><th>Otorisasi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL PRODUK -->
+<div id="modal-produk" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span id="modal-title">Registrasi Produk Baru</span>
+      <button class="modal-close" id="btn-close-modal-produk">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="prod-id"/>
+      <div class="form-row">
+        <div class="form-group"><label>Kode Unik (UID)</label><input type="text" id="prod-kode" placeholder="Misal: PRD-051"/></div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <input type="text" id="prod-kat" list="kategori-list" placeholder="Ketik/Pilih Kategori..."/>
+          <datalist id="kategori-list"></datalist>
+        </div>
+      </div>
+      <div class="form-group"><label>Nama Produk</label><input type="text" id="prod-nama" placeholder="Deskripsi aset..."/></div>
+      
+      <div class="form-row-3">
+        <div class="form-group"><label>Stok Aktual</label><input type="number" id="prod-stok" min="0" value="0"/></div>
+        <div class="form-group">
+          <label style="color:var(--warning);">Batas Minimum</label>
+          <input type="number" id="prod-min" min="1" value="5" title="Sistem akan memberikan peringatan jika stok di bawah angka ini"/>
+        </div>
+        <div class="form-group"><label>Harga (Rp)</label><input type="number" id="prod-hjual" min="0" value="0"/></div>
+      </div>
+      
+    </div>
+    <div class="modal-footer">
+      <button class="btn-inline" id="btn-cancel-produk">Batalkan</button>
+      <button class="btn-primary" style="width:auto; padding:10px 24px;" id="btn-save-produk">Otorisasi & Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROFIL TERPADU -->
+<div id="modal-profil" class="modal-overlay">
+  <div class="modal" style="width:480px">
+    <div class="modal-header"><span style="font-size:16px;">Pengaturan Akun & Keamanan</span><button class="modal-close" id="btn-close-modal-profil">✕</button></div>
+    <div class="modal-body">
+      
+      <div style="text-align:center; margin-bottom:10px;">
+        <div class="user-avatar" id="preview-avatar" style="width:80px; height:80px; font-size:30px; margin:0 auto 10px; box-shadow:0 10px 25px rgba(0,0,0,0.3);">A</div>
+        <input type="file" id="file-avatar" accept="image/*" style="display:none"/>
+        <button class="btn-inline" id="btn-upload-foto" style="font-size:12px; padding:6px 14px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="margin-right:4px;">
+            <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>
+          </svg>Ubah Foto
+        </button>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Nama Operasional</label><input type="text" id="prof-name"/></div>
+        <div class="form-group"><label>Username / Email</label><input type="email" id="prof-email" readonly style="opacity:0.6; cursor:not-allowed;" title="Sistem menolak perubahan email untuk keamanan login"/></div>
+      </div>
+
+      <div style="border-top:1px dashed var(--border); margin-top:5px; padding-top:15px;">
+        <span style="font-size:11px; font-weight:700; color:var(--warning); display:block; margin-bottom:12px; letter-spacing:0.5px;">UBAH KATA SANDI (OPSIONAL)</span>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kata Sandi Lama</label>
+            <div class="pw-wrapper"><input type="password" id="prof-pass-old" placeholder="Sandi saat ini" /><span class="pw-toggle" onclick="togglePW('prof-pass-old', this)">👁️</span></div>
+          </div>
+          <div class="form-group">
+            <label>Kata Sandi Baru</label>
+            <div class="pw-wrapper"><input type="password" id="prof-pass-new" placeholder="Minimal 6 karakter" /><span class="pw-toggle" onclick="togglePW('prof-pass-new', this)">👁️</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-inline" id="btn-cancel-profil">Batal</button>
+      <button class="btn-primary" style="width:auto" id="btn-save-profil">Simpan Perubahan Akun</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LIBRARY EXTERNAL ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- Skrip UI super ringan untuk animasi mata password -->
+<script>
+  function togglePW(id, el) {
+    const inp = document.getElementById(id);
+    if(inp.type === 'password') { inp.type = 'text'; el.style.opacity = '1'; } 
+    else { inp.type = 'password'; el.style.opacity = '0.6'; }
+  }
+</script>
+
+<!-- Menghubungkan logika Firebase dan fungsi interaktif (akan dibuat di langkah berikutnya) -->
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>inmo — Login Sistem</title>
+
+<!-- Font External -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"/>
+
+<!-- Menghubungkan ke file CSS yang sudah Anda buat sebelumnya -->
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body style="display:flex; align-items:center; justify-content:center; background-image:radial-gradient(ellipse at 30% 20%,rgba(108,111,255,.08) 0%,transparent 60%), radial-gradient(ellipse at 70% 80%,rgba(56,189,248,.06) 0%,transparent 50%); min-height:100vh;">
+
+<div class="notification-container" id="notif-container"></div>
+
+<!-- ================= KARTU LOGIN ================= -->
+<div class="auth-card" id="card-login">
+  <div class="auth-brand"><span class="brand-icon">⬡</span><span class="brand-name">inmo</span></div>
+  <h1 class="auth-title">Otorisasi Sistem</h1>
+  <p class="auth-subtitle">Masukkan kredensial administrator Anda</p>
+  
+  <div class="form-group">
+    <label>Alamat Surel</label>
+    <input type="email" id="login-user" placeholder="admin@inmo.com" value="admin@inmo.com"/>
+  </div>
+  <div class="form-group">
+    <label>Kata Sandi</label>
+    <div class="pw-wrapper">
+      <input type="password" id="login-pass" placeholder="••••••••" value="admin123"/>
+      <span class="pw-toggle" onclick="togglePW('login-pass', this)">👁️</span>
+    </div>
+  </div>
+  
+  <div class="auth-switch" style="margin-top: -10px; margin-bottom: 20px;">
+    <span></span>
+    <!-- Mengganti tampilan ke kartu lupa sandi tanpa JavaScript eksternal -->
+    <a onclick="document.getElementById('card-login').style.display='none'; document.getElementById('card-forgot').style.display='block';">Lupa Kata Sandi?</a>
+  </div>
+  
+  <button type="button" class="btn-primary" id="btn-do-login">Otorisasi Masuk</button>
+  <div class="auth-switch" style="justify-content: center; margin-top: 25px;">
+    <!-- Tautan ini akan langsung mengarahkan ke halaman register.html yang akan kita buat nanti -->
+    <span>Belum memiliki akses? <a href="register.html">Buat Akun Administrator</a></span>
+  </div>
+</div>
+
+<!-- ================= KARTU LUPA KATA SANDI ================= -->
+<div class="auth-card" id="card-forgot" style="display:none;">
+  <div class="auth-brand"><span class="brand-icon">⬡</span><span class="brand-name">inmo</span></div>
+  <h1 class="auth-title">Lupa Kata Sandi</h1>
+  <p class="auth-subtitle">Perbarui kredensial keamanan akun Anda.</p>
+  
+  <div class="form-group">
+    <label>Alamat Surel Terdaftar</label>
+    <input type="email" id="forgot-email" placeholder="admin@inmo.com"/>
+  </div>
+  <div class="form-group">
+    <label>Kata Sandi Baru</label>
+    <div class="pw-wrapper">
+      <input type="password" id="forgot-newpass" placeholder="Minimal 6 karakter"/>
+      <span class="pw-toggle" onclick="togglePW('forgot-newpass', this)">👁️</span>
+    </div>
+  </div>
+  
+  <button type="button" class="btn-primary" id="btn-do-forgot">Simpan Kata Sandi Baru</button>
+  <div class="auth-switch" style="justify-content: center; margin-top: 25px;">
+    <span><a onclick="document.getElementById('card-forgot').style.display='none'; document.getElementById('card-login').style.display='block';">Batal dan kembali ke Log In</a></span>
+  </div>
+</div>
+
+<!-- Menghubungkan logika otentikasi Firebase (akan kita buat nanti) -->
+<script type="module" src="auth.js"></script>
+
+<!-- Skrip UI super ringan untuk animasi mata password -->
+<script>
+  function togglePW(id, el) {
+    const inp = document.getElementById(id);
+    if(inp.type === 'password') { inp.type = 'text'; el.style.opacity = '1'; } 
+    else { inp.type = 'password'; el.style.opacity = '0.6'; }
+  }
+</script>
+
+</body>
+</html>
